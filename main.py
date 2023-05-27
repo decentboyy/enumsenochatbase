@@ -1,72 +1,37 @@
+import logging
 import telebot
 
-# Replace 'TOKEN' with your bot token
-bot_token = '5611176803:AAHL17RUNLA_CgBSXpfifxProLl66AzXNIk'
+# Set up logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Replace 'GROUP_ID' with the ID of the group where the bot will save the chats
-log_group_id = '-1001832126466'
+# Telegram Bot Token
+TOKEN = '5611176803:AAHL17RUNLA_CgBSXpfifxProLl66AzXNIk'
 
-# Create a TeleBot instance
-bot = telebot.TeleBot(bot_token)
+# Private group ID to forward messages
+PRIVATE_GROUP_ID = '-1001832126466'  # Replace with the actual private group ID
 
-# Register a message handler for all incoming messages in any group
+# Create bot instance
+bot = telebot.TeleBot(TOKEN)
+
+# Handler to forward messages to private group
 @bot.message_handler(func=lambda message: True)
-def save_chat(message):
-    chat_id = message.chat.id
+def forward_message(message):
+    # Forward message to private group
+    bot.forward_message(chat_id=PRIVATE_GROUP_ID,
+                        from_chat_id=message.chat.id,
+                        message_id=message.message_id)
 
-    if message.text:
-        chat_message = f"{message.from_user.username}: {message.text}"
-        bot.send_message(log_group_id, chat_message)
-    
-    elif message.photo:
-        # Handle photo
-        photo = message.photo[-1]  # Get the highest quality photo
-        file_id = photo.file_id
-        file_info = bot.get_file(file_id)
-        file_path = file_info.file_path
-        photo_url = f"https://api.telegram.org/file/bot{bot_token}/{file_path}"
-        photo_caption = f"{message.from_user.username} sent a photo"
-        bot.send_photo(log_group_id, photo_url, caption=photo_caption)
-    
-    elif message.video:
-        # Handle video
-        video = message.video
-        file_id = video.file_id
-        file_info = bot.get_file(file_id)
-        file_path = file_info.file_path
-        video_url = f"https://api.telegram.org/file/bot{bot_token}/{file_path}"
-        video_caption = f"{message.from_user.username} sent a video"
-        bot.send_video(log_group_id, video_url, caption=video_caption)
-    
-    elif message.sticker:
-        # Handle sticker
-        sticker = message.sticker
-        file_id = sticker.file_id
-        file_info = bot.get_file(file_id)
-        file_path = file_info.file_path
-        sticker_url = f"https://api.telegram.org/file/bot{bot_token}/{file_path}"
-        sticker_caption = f"{message.from_user.username} sent a sticker"
-        bot.send_sticker(log_group_id, sticker_url, caption=sticker_caption)
-    
-    elif message.animation:
-        # Handle GIF
-        animation = message.animation
-        file_id = animation.file_id
-        file_info = bot.get_file(file_id)
-        file_path = file_info.file_path
-        animation_url = f"https://api.telegram.org/file/bot{bot_token}/{file_path}"
-        animation_caption = f"{message.from_user.username} sent a GIF"
-        bot.send_animation(log_group_id, animation_url, caption=animation_caption)
-    
-    elif message.audio:
-        # Handle audio
-        audio = message.audio
-        file_id = audio.file_id
-        file_info = bot.get_file(file_id)
-        file_path = file_info.file_path
-        audio_url = f"https://api.telegram.org/file/bot{bot_token}/{file_path}"
-        audio_caption = f"{message.from_user.username} sent an audio file"
-        bot.send_audio(log_group_id, audio_url, caption=audio_caption)
+# Handler for /start command
+@bot.message_handler(commands=['start'])
+def start(message):
+    bot.reply_to(message, 'Hello! I will forward all messages to the private group.')
 
-# Start the bot
+# Handler for unknown commands
+@bot.message_handler(func=lambda message: True)
+def unknown(message):
+    bot.reply_to(message, "Sorry, I didn't understand that command.")
+
+# Start the Bot
 bot.polling()
