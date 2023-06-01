@@ -1,7 +1,7 @@
 import telebot
 
 # Replace 'TOKEN' with your bot token
-bot_token = '5611176803:AAHL17RUNLA_CgBSXpfifxProLl66AzXNIk'
+bot_token = '6101196560:AAE9Te6XfIfldcJcqdnh6Yb7SHPVi_z3hRc'
 
 # Replace 'GROUP_ID' with the ID of the group where the bot will save the chats
 log_group_id = '-1001832126466'
